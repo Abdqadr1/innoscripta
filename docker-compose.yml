@@ -17,6 +17,17 @@ services:
       - db
     networks:
       - laravel_network
+      
+  scheduler:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.scheduler
+    container_name: laravel_scheduler
+    restart: unless-stopped
+    depends_on:
+      - backend
+    networks:
+      - laravel_network
 
   db:
     image: mysql:8.0

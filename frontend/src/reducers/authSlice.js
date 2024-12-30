@@ -24,7 +24,6 @@ const authSlice = createSlice({
     },
     prefSuccess: (state, action) => {
       state.loading = false;
-      console.log(action.payload.data)
       state.user = action.payload.data;
       localStorage.setItem("user", JSON.stringify(action.payload.data));
     },

@@ -81,7 +81,10 @@ class UserController extends Controller
             'password' => ValidationConstant::PASSWORD
         ]);
 
-        $user = $this->userService->addUser( $validated );
+        $user = $this->userService->addUser( [
+            ...$validated,
+            'is_preference' => false
+        ]);
         $token =  $user->createToken( $request->input('device_name', $user->email ) )->plainTextToken;
 
         return [

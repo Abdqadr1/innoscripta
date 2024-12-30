@@ -1,0 +1,9 @@
+FROM php:8.3-cli
+
+RUN apt-get update && apt-get install -y cron
+
+WORKDIR /app/backend
+
+RUN echo "* * * * * php /app/backend/artisan schedule:run >> /dev/null 2>&1" | crontab -
+
+CMD ["cron", "-f"]

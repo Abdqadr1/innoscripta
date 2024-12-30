@@ -24,7 +24,7 @@ class ArticleService {
 
         if( $use_preference ) $this->filterByUserPreference( $query, $user );
 
-        return $query->paginate(100);
+        return $query->paginate(20);
 
     }
     
@@ -51,7 +51,7 @@ class ArticleService {
             $query->whereRaw("DATE(published_at) = ?", $source);
         }
 
-        return $query->paginate(100);
+        return $query->paginate(20);
 
     }
 

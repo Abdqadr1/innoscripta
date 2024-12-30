@@ -56,37 +56,32 @@ const Feed = () => {
                     <SearchAndFilter />
                 </div>
             )}
-
-            {
-                !loading && (
-                    <>
-                        {articles.length == 0 ? (
-                            <NoArticles refresh={refreshFeed} />
-                        ) : (
-                            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-                                {articles.map((article) => (
-                                    <Article key={article.id} article={article} />
-                                ))}
-                            </div>
-                        )}
-                    </>
-                )
-            }
-
-
-
-            {hasMore && (
-                <div className="flex justify-center">
-                    {
-                        loading
-                            ? <p className="mt-5">Loading articles...</p>
-                            : <button onClick={loadMore} className="button text-center mt-4">
-                                <p className="text-blue-500">Load more</p>
-                            </button>
-                    }
+            {(articles.length == 0 && !loading) ? (
+                <NoArticles refresh={refreshFeed} />
+            ) : (
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+                    {articles.map((article) => (
+                        <Article key={article.id} article={article} />
+                    ))}
                 </div>
-
             )}
+
+
+
+            <div className="flex justify-center">
+                {
+                    loading && (
+                        <p className="mt-5">Loading articles...</p>
+                    )
+                }
+                {
+                    ( hasMore &&  !loading ) &&(
+                        <button onClick={loadMore} className="button text-center mt-4">
+                            <p className="text-blue-500">Load more</p>
+                        </button>
+                    )
+                }
+            </div>
 
 
         </div>
