@@ -7,7 +7,6 @@ Author: Quadri Abolarinwa
 ## **Requirements**
 1. Docker (version 20.x or later)
 2. Docker Compose (version 1.29.x or later)
-3. Basic knowledge of Docker and containerized environments
 ---
 
 
