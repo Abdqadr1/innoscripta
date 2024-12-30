@@ -43,3 +43,7 @@ Schedule Command: Runs every minute in the container:
 * * * * * php /app/backend/artisan schedule:run >> /dev/null 2>&1
 ```
 This is defined in the docker-compose.yml file.
+
+**Note:** All the environment files and variables have already been included in the repository
+
+Thank you.

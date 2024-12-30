@@ -11,13 +11,15 @@ services:
       - ./backend/.env.docker
     volumes:
       - ./backend:/app/backend
+      - /app/backend/vendor
+      - /app/backend/node_modules
     ports:
       - 8000:8000
     depends_on:
       - db
     networks:
       - laravel_network
-      
+
   scheduler:
     build:
       context: ./backend
