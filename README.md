@@ -34,6 +34,13 @@ This command will:
 1. Build the Docker images for both applications.
 2. Start the containers in the specified network.
 
+# Access the Applications
+Once the containers are running, access the applications using the following URLs:
+```
+Laravel App: http://localhost:8000
+React App: http://localhost:5173
+```
+
 # Laravel Scheduler
 The Laravel application includes a scheduler service configured as:
 
