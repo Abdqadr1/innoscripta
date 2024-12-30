@@ -14,6 +14,7 @@ Route::middleware('auth:sanctum')->group(function(){
 
 
     Route::get('/user', [AuthController::class, 'user']);
+    Route::get('/user/preference/toggle', [UserController::class, 'toggle']);
 
     Route::get('/user/preferences', [UserController::class, 'getPreferences']);
     Route::post('/user/preferences', [UserController::class, 'setPreferences']);

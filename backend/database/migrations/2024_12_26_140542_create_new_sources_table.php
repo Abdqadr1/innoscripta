@@ -16,6 +16,8 @@ return new class extends Migration
 
             $table->string('name')->unique();
             $table->string('url')->unique()->nullable();
+            $table->date('last_fetched')->nullable();
+            
         });
     }
 

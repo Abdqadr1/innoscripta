@@ -22,6 +22,12 @@ const authSlice = createSlice({
       localStorage.setItem("token", action.payload.token);
       localStorage.setItem("user", JSON.stringify(action.payload.user));
     },
+    prefSuccess: (state, action) => {
+      state.loading = false;
+      console.log(action.payload.data)
+      state.user = action.payload.data;
+      localStorage.setItem("user", JSON.stringify(action.payload.data));
+    },
     loginFailure: (state, action) => {
       state.loading = false;
       state.error = action.payload;
@@ -35,7 +41,7 @@ const authSlice = createSlice({
   },
 });
 
-export const { loginStart, loginSuccess, loginFailure, logout } = authSlice.actions;
+export const { loginStart, loginSuccess, loginFailure, logout,prefSuccess } = authSlice.actions;
 
 export const login = (credentials, navigate) => async (dispatch) => {
   dispatch(loginStart());
@@ -44,6 +50,25 @@ export const login = (credentials, navigate) => async (dispatch) => {
     dispatch(loginSuccess(data));
     navigate(data);
   } catch (error) {
+    dispatch(loginFailure(error.response.data.message));
+  }
+};
+
+export const updatePreference = (_, func) => async (dispatch, getState) => {
+  const { auth } = getState();
+
+  dispatch(loginStart());
+  try {
+    const { data } = await axios.get(`${API_URL}/user/preference/toggle`, {
+      headers: { Authorization: `Bearer ${auth.token}` },
+    });
+    dispatch(prefSuccess(data));
+    func(data);
+  } catch (error) {
+    console.log(error);
+    if (error.response?.status === 401) {
+      thunkAPI.dispatch(logout());
+    }
     dispatch(loginFailure(error.response.data.message));
   }
 };

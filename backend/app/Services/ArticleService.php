@@ -3,10 +3,13 @@
 namespace App\Services;
 
 use App\Models\Article;
+use App\Services\Traits\HasPreference;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 class ArticleService {
+
+    use HasPreference;
 
     public function __construct(
     ){}
@@ -14,27 +17,14 @@ class ArticleService {
     public function list(Request $request){
 
         $user = $request->user();
-        $sources = $user->sources()->pluck('id');
-        $authors = $user->authors()->pluck('id');
-        $categories = $user->categories()->pluck('id');
+
+        $use_preference = boolval( $request->query('use_preference', 0) );
 
         $query = Article::query();
 
-        if( $authors->isNotEmpty() ){
-            $query->whereIn('author_id', $authors);
-        }
+        if( $use_preference ) $this->filterByUserPreference( $query, $user );
 
-        if( $sources->isNotEmpty() ){
-            $query->whereIn('source_id', $sources);
-        }
-
-        if( $categories->isNotEmpty() ){
-            $query->whereHas('categories', function($hasQuery)use($categories){
-                $hasQuery->whereIn('categories.id', $categories);
-            });
-        }
-
-        return $query->paginate(20);
+        return $query->paginate(100);
 
     }
     
@@ -44,10 +34,6 @@ class ArticleService {
         $category = $request->query('category');
         $source = $request->query('source');
         $date = $request->query('date');
-
-        logger($category);
-        logger($source);
-        logger($date);
 
         $query = Article::query();
 
@@ -65,7 +51,7 @@ class ArticleService {
             $query->whereRaw("DATE(published_at) = ?", $source);
         }
 
-        return $query->paginate(20);
+        return $query->paginate(100);
 
     }
 

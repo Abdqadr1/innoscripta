@@ -90,4 +90,21 @@ class UserController extends Controller
         ];
         
     }
+
+
+    
+
+    /**
+     * Toggle user is_preference flag
+     */
+    public function toggle(Request $request) {
+        $user = $request->user();
+        
+        $user->update([
+            'is_preference' => !$user->is_preference
+        ]);
+
+        return new UserResource( $user->fresh() );
+        
+    }
 }

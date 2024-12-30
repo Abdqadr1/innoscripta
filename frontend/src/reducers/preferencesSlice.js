@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import { logout } from "./authSlice";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -11,6 +12,9 @@ export const fetchPreferences = createAsyncThunk("preferences/fetchPreferences",
     });
     return data;
   } catch (error) {
+    if (error.response?.status === 401) {
+      thunkAPI.dispatch(logout());
+    }
     return thunkAPI.rejectWithValue(error.response.data.message);
   }
 });
@@ -29,6 +33,9 @@ export const updatePreferences = createAsyncThunk(
       });
       return data;
     } catch (error) {
+      if (error.response?.status === 401) {
+        thunkAPI.dispatch(logout());
+      }
       return thunkAPI.rejectWithValue(error.response.data.message);
     }
   }
@@ -76,7 +83,12 @@ const preferencesSlice = createSlice({
       })
       .addCase(fetchPreferences.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
+        state.error = action.payload.data.message;
+
+        if(action.payload.status == 401 ){
+          logout();
+        }
+
       })
       .addCase(updatePreferences.pending, (state) => {
         state.loading = true;
@@ -88,7 +100,11 @@ const preferencesSlice = createSlice({
       })
       .addCase(updatePreferences.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
+        state.error = action.payload.data.message;
+
+        if(action.payload.status == 401 ){
+          logout();
+        }
       });
   },
 });

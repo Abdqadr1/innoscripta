@@ -7,7 +7,7 @@ import Search from "./components/Articles/Search";
 import ProtectedRoute from "./components/ProtectedRoute";
 import './App.css'
 import Register from "./components/Auth/Register";
-import Settings from "./components/Settings";
+import Settings from "./pages/Settings";
 
 const App = () => (
   <Router>

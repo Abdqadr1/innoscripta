@@ -1,17 +1,11 @@
-FROM node:16-alpine
+FROM node
 
-# Set working directory
-WORKDIR /app
+WORKDIR /app/frontend
 
-# Copy package.json and install dependencies
-COPY package.json yarn.lock ./
-RUN yarn install
+COPY package.json .
 
-# Copy application files
+RUN npm install
+
 COPY . .
 
-# Expose port
-EXPOSE 3000
-
-# Start React app
-CMD ["yarn", "start"]
+CMD ["npm", "run", "dev"]

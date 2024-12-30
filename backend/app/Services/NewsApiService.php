@@ -4,16 +4,16 @@ namespace App\Services;
 
 use App\Models\Article;
 use App\Models\Author;
+use App\Models\NewsSource;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 
 class NewsApiService extends NewsService {
 
-    public function fetch( string $category = 'business', int $page ): mixed {
+    public function fetch( string $category = 'business', $date, int $page ): mixed {
 
-        $date = Carbon::yesterday()->format('Y-m-d');
-
-        $response = Http::acceptJson()
+        $response = Http::timeout(60)->acceptJson()
                         ->get(
                             "https://newsapi.org/v2/top-headlines",
                             [
@@ -22,6 +22,8 @@ class NewsApiService extends NewsService {
                                 'sortBy' => 'popularity',
                                 'from' => $date,
                                 'to' => $date,
+                                'page' => $page,
+                                'pageSize' => 100,
                             ]
                         );
 
@@ -29,7 +31,26 @@ class NewsApiService extends NewsService {
 
     }
 
+    public function getCategory( $category, $date, $page = 1 ){
+
+        $data = $this->fetch( Str::lower($category->name), $date, $page );
+
+        $this->insertData( $data, $category->id );
+        
+        if( isset($data['status']) && $data['status'] === 'ok' && $data['totalResults'] > intval($page * 100 ) ){
+            $this->getCategory( $category, $date, ++$page );
+        }
+
+    }
+
+    protected function getNewSource(): void{
+        $this->newSource =  NewsSource::find(1);
+    }
+
+
     public function insertData( array $data, int $categoryId ){
+        
+        logger($data);
 
         if( isset($data['status']) && $data['status'] === 'ok' ){
 
@@ -54,7 +75,7 @@ class NewsApiService extends NewsService {
                     'image_url' => $articleData['urlToImage'],
                     'published_at' => Carbon::parse($articleData['publishedAt']),
                     'author_id' => $author?->id,
-                    'source_id' => static::NEWS_API_ID,
+                    'source_id' => $this->newSource->id,
                 ]);
 
                 $article->categories()->attach($categoryId);

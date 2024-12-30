@@ -4,19 +4,16 @@ namespace App\Services;
 
 use App\Models\Article;
 use App\Models\Author;
+use App\Models\NewsSource;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 
 class TheGuardianService extends NewsService {
 
-    public function fetch( string $category = 'business', int $page = 1 ): mixed{
+    public function fetch( string $category = 'business', $date, int $page = 1 ): mixed{
 
-        $date = Carbon::parse("2024-12-27")->format('Y-m-d');
-
-        logger("category: {$category}");
-
-        $response = Http::acceptJson()
+        $response = Http::timeout(60)->acceptJson()
                         ->get(
                             "https://content.guardianapis.com/{$category}",
                             [
@@ -35,22 +32,25 @@ class TheGuardianService extends NewsService {
 
     }
 
-    
-    public function getCategory( $category, $page = 1 ){
+    protected function getNewSource(): void{
+        $this->newSource = NewsSource::find(3);
+    }
 
-        $response = $this->fetch( Str::lower($category->name), $page );
-        $data = $response['response'];
-        logger($data);
+    
+    public function getCategory( $category, $date, $page = 1 ){
+
+        $response = $this->fetch( Str::lower($category->name), $date, $page );
+        $data = $response['response'] ?? null;
 
         $this->insertData( $data, $category->id );
         
         if( isset($data['status']) && $data['status'] === 'ok' && $data['currentPage'] < $data['pages'] ){
-            $this->getCategory( $category, ++$page );
+            $this->getCategory( $category, $date, ++$page );
         }
 
     }
 
-    public function insertData( array $data, int $categoryId ){
+    public function insertData( ?array $data, int $categoryId ){
 
         if( isset($data['status']) && $data['status'] === 'ok' ){
 
@@ -70,21 +70,18 @@ class TheGuardianService extends NewsService {
                     'title' => $articleData['fields']['headline'],
                     'description' => $articleData['fields']['headline'],
                     'content' => $articleData['fields']['body'] ?? '',
-                    'url' => $articleData['webUrl'],
-                    'image_url' => $articleData['fields']['thumbnail'],
+                    'url' => $articleData['webUrl'] ?? '',
+                    'image_url' => $articleData['fields']['thumbnail'] ?? '',
                     'published_at' => Carbon::parse($articleData['webPublicationDate']),
                     'author_id' => $author?->id,
-                    'source_id' => static::THE_GUARDIAN_ID,
+                    'source_id' => $this->newSource->id,
                 ]);
 
                 $article->categories()->attach($categoryId);
 
             });
 
-
         }
-
-
 
     }
 

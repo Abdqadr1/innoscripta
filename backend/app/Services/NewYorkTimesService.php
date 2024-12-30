@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Article;
 use App\Models\Author;
+use App\Models\NewsSource;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
@@ -11,16 +12,15 @@ use Illuminate\Support\Str;
 class NewYorkTimesService extends NewsService {
 
 
-    public function fetch( string $category = 'business', int $page ): mixed{
+    public function fetch( string $category = 'business', $date, int $page ): mixed{
 
-        $date = Carbon::yesterday()->format('Y-m-d');
-
-        $response = Http::acceptJson()
+        $response = Http::timeout(60)->acceptJson()
                         ->get(
                             "https://api.nytimes.com/svc/search/v2/articlesearch.json?",
                             [
                                 'fq' => 'news_desk:("' . $category . '") AND pub_date:("'. $date .'")',
                                 'api-key' => config('app.ny_api_key', ''),
+                                'page' => $page
                             ]
                         );
 
@@ -28,8 +28,15 @@ class NewYorkTimesService extends NewsService {
 
     }
 
+    protected function getNewSource(): void{
+        $this->newSource = NewsSource::find(2);
+    }
+
+
 
     public function insertData( array $data, int $categoryId ){
+
+        logger($data);
 
         if( isset($data['status']) && $data['status'] === 'OK' && !empty($data['response']['docs']) ){
 
@@ -60,7 +67,7 @@ class NewYorkTimesService extends NewsService {
                     'image_url' => $imageUrl,
                     'published_at' => Carbon::parse($doc['pub_date']),
                     'author_id' => $author?->id,
-                    'source_id' => static::NEW_YORK_TIMES_ID,
+                    'source_id' => $this->newSource->id,
                 ]);
 
                 $article->categories()->attach($categoryId);

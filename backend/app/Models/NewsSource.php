@@ -7,8 +7,13 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class NewsSource extends Model
 {
+    public $timestamps = false;
     
     protected $guarded = ['id'];
+
+    protected $casts = [
+        'last_fetched' => 'date'
+    ];
 
     public function articles(): HasMany {
         return $this->hasMany(Article::class, 'source_id');

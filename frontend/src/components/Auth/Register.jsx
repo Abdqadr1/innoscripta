@@ -22,7 +22,10 @@ const Register = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    dispatch(register(formData, () => navigate('/') ));
+    dispatch(
+      register(formData, 
+        () => navigate('/') )
+      );
   };
 
   return (

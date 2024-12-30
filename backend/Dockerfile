@@ -1,34 +1,26 @@
-FROM php:8.1-fpm
+FROM php:8.3
 
-# Install dependencies
-RUN apt-get update && apt-get install -y \
+RUN apt-get update -y && apt-get install -y \
+    libfreetype6-dev \
+    libjpeg62-turbo-dev \
     libpng-dev \
+    libonig-dev \
+    libzip-dev \
     zip \
     unzip \
     git \
     curl
 
-# Install extensions
-RUN docker-php-ext-install pdo_mysql gd
+RUN docker-php-ext-install pdo mbstring pdo_mysql
 
-# Install Composer
-COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
+COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
 
-# Set the working directory
-WORKDIR /var/www/html
+WORKDIR /app/backend
 
-# Copy application
 COPY . .
 
-# Install Laravel dependencies
 RUN composer install
 
-# Set permissions
-RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 775 /var/www/html/storage \
-    && chmod -R 775 /var/www/html/bootstrap/cache
+EXPOSE 8000
 
-# Expose port
-EXPOSE 9000
-
-CMD ["php-fpm"]
+CMD php artisan migrate:fresh --force --seed && php artisan key:generate && php artisan serve --host=0.0.0.0 --port=8000

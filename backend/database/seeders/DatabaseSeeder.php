@@ -5,8 +5,12 @@ namespace Database\Seeders;
 use App\Models\Category;
 use App\Models\NewsSource;
 use App\Models\User;
+use Carbon\Carbon;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Services\NewsApiService;
+use App\Services\NewYorkTimesService;
+use App\Services\TheGuardianService;
 
 class DatabaseSeeder extends Seeder
 {
@@ -15,12 +19,13 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        
+        set_time_limit(0);
+
         // create news sources
         NewsSource::insert([
-            [ 'name' => 'NewsAPI.org', 'url' => null ],
-            [ 'name' => 'The New York Times', 'url' => null ],
-            [ 'name' => 'The Guardian:', 'url' => null ],
+            [ 'name' => 'NewsAPI.org', 'url' => null, 'last_fetched' => Carbon::parse('2024-12-25') ],
+            [ 'name' => 'The New York Times', 'url' => null, 'last_fetched' => Carbon::parse('2024-12-25') ],
+            [ 'name' => 'The Guardian:', 'url' => null, 'last_fetched' => Carbon::parse('2024-12-25') ],
         ]);
 
         //create some categories
@@ -32,6 +37,15 @@ class DatabaseSeeder extends Seeder
             ['name' => 'Health'],
             ['name' => 'Finance'],
         ]);
+
+        for ($i=0; $i < 5; $i++) { 
+
+            (new NewsApiService)();
+            (new NewYorkTimesService)();
+            (new TheGuardianService)();
+
+        }
+    
 
     }
 }

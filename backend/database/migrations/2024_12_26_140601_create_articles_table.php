@@ -25,7 +25,7 @@ return new class extends Migration
             $table->foreignId('author_id')->nullable()->constrained('authors', 'id');
             $table->foreignId('source_id')->nullable()->constrained('news_sources', 'id');
 
-            $table->timestamp('published_at', 6)->nullable();
+            $table->dateTime('published_at', 6)->nullable();
             $table->timestamps(6);
         });
     }

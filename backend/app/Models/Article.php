@@ -10,6 +10,10 @@ class Article extends Model
 {
     protected $fillable = ['title', 'content', 'description', 'published_at', 'image_url', 'url', 'author_id', 'source_id'];
 
+    protected $casts = [
+        'published_at' => 'datetime'
+    ];
+
 
     public function author():HasOne {
         return $this->hasOne(Author::class, 'author_id')->withDefault([
@@ -22,7 +26,7 @@ class Article extends Model
     }
 
     public function categories() : BelongsToMany {
-        return $this->belongsToMany(Category::class, 'article_category', 'category_id', 'article_id')
+        return $this->belongsToMany(Category::class, 'article_category', 'article_id', 'category_id')
                     ->withTimestamps();
     }
 

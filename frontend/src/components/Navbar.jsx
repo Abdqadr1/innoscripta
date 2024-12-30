@@ -1,51 +1,37 @@
 import { useDispatch, useSelector } from "react-redux";
 import { logout as authLogout } from "../reducers/authSlice";
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
-
-const Navbar2 = () => {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const { token:isAuthenticated } = useSelector((state) => state.auth);
-
-  const logout = (e) => {
-    dispatch(authLogout());
-    navigate('/login');
-  }
-
-
-  return (
-    <nav className="bg-blue-500 p-4 text-white flex justify-between">
-      <h1 className="text-xl">News Aggregator</h1>
-      {
-        (!!isAuthenticated) && (
-            <button
-                onClick={logout}
-                className="bg-red-500 px-4 py-2 rounded"
-            >
-                Logout
-            </button>
-        )
-      }
-    </nav>
-  );
-};
 
 const Navbar = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const dropdownRef = useRef(null); 
 
   const { user, token } = useSelector((state) => state.auth);
 
   const handleLogout = () => {
     dispatch(authLogout());
-    navigate("/login"); 
+    navigate("/login");
   };
 
   const handleSettingsClick = () => {
     navigate("/settings");
   };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
     <nav className="bg-blue-600 text-white shadow-md">
@@ -56,11 +42,10 @@ const Navbar = () => {
         <div className="relative">
           {token ? (
             <div className="flex items-center space-x-4">
-              {/* User Name and Dropdown */}
-              <div className="relative">
-                <button
+              <div className="relative" ref={dropdownRef}>
+                <span
                   onClick={() => setDropdownOpen(!dropdownOpen)}
-                  className="flex items-center text-white font-medium hover:text-blue-300"
+                  className="flex items-center cursor-pointer text-white font-medium hover:text-blue-300"
                 >
                   {user?.name}
                   <svg
@@ -77,7 +62,7 @@ const Navbar = () => {
                       d="M19 9l-7 7-7-7"
                     />
                   </svg>
-                </button>
+                </span>
                 {dropdownOpen && (
                   <div className="absolute right-0 mt-2 w-48 bg-white text-black rounded-lg shadow-lg">
                     <button
@@ -98,13 +83,12 @@ const Navbar = () => {
             </div>
           ) : (
             <div className="space-x-4">
-              {/* Show login/register links */}
               <Link to="/login" className="hover:text-blue-500 text-white">
                 Login
               </Link>
               <Link
                 to="/register"
-                 className="hover:text-blue-500 text-white"
+                className="hover:text-blue-500 text-white"
               >
                 Register
               </Link>
@@ -117,4 +101,3 @@ const Navbar = () => {
 };
 
 export default Navbar;
-

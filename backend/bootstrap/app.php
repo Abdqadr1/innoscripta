@@ -24,12 +24,12 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withSchedule(function (Schedule $schedule) {
 
         $schedule->call(new NewsApiService)
-            ->dailyAt('00:30')->evenInMaintenanceMode();
+            ->everyThreeHours();
 
         $schedule->call(new NewYorkTimesService)
-            ->dailyAt('00:45')->evenInMaintenanceMode();
+            ->everyThreeHours();
 
         $schedule->call(new TheGuardianService)
-            ->dailyAt('10:45')->evenInMaintenanceMode();
+            ->everyThreeHours();
     })
     ->create();
