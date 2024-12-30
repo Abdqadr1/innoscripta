@@ -17,13 +17,14 @@ class UserController extends Controller
 {
     public function __construct(
         public UserService $userService,
-    ){}
+    ) {}
 
     /**
      * Get user preference
      * @unauthenticated
      */
-    public function getPreferences(Request $request){
+    public function getPreferences(Request $request)
+    {
 
         $user = $request->user();
 
@@ -35,11 +36,10 @@ class UserController extends Controller
                 'categories' => $user->categories,
                 'sources' => $user->sources,
             ],
-            'authors' => AuthorResource::collection( Author::all() ),
-            'categories' => CategoryResource::collection( Category::all() ),
-            'sources' => NewsSourceResource::collection( NewsSource::all() ),
+            'authors' => AuthorResource::collection(Author::all()),
+            'categories' => CategoryResource::collection(Category::all()),
+            'sources' => NewsSourceResource::collection(NewsSource::all()),
         ];
-
     }
 
 
@@ -47,7 +47,8 @@ class UserController extends Controller
      * Set user preference
      * @unauthenticated
      */
-    public function setPreferences(Request $request){
+    public function setPreferences(Request $request)
+    {
 
         $validated = $request->validate([
             'authors' => ValidationConstant::ARRAY,
@@ -60,12 +61,16 @@ class UserController extends Controller
 
         $user = $request->user();
 
-        $user->authors()->sync( $validated['authors'] );
-        $user->categories()->sync( $validated['categories'] );
-        $user->sources()->sync( $validated['sources'] );
+        $user->authors()->sync($validated['authors']);
+        $user->categories()->sync($validated['categories']);
+        $user->sources()->sync($validated['sources']);
 
         $user->loadMissing('authors', 'sources', 'categories');
-        return new UserResource( $user );
+        return [
+            'authors' => $user->authors,
+            'categories' => $user->categories,
+            'sources' => $user->sources,
+        ];
     }
 
 
@@ -73,7 +78,8 @@ class UserController extends Controller
      * Register new user
      * @unauthenticated
      */
-    public function register( Request $request ){
+    public function register(Request $request)
+    {
 
         $validated = $request->validate([
             'name' => ValidationConstant::VAR_CHAR,
@@ -81,33 +87,32 @@ class UserController extends Controller
             'password' => ValidationConstant::PASSWORD
         ]);
 
-        $user = $this->userService->addUser( [
+        $user = $this->userService->addUser([
             ...$validated,
             'is_preference' => false
         ]);
-        $token =  $user->createToken( $request->input('device_name', $user->email ) )->plainTextToken;
+        $token =  $user->createToken($request->input('device_name', $user->email))->plainTextToken;
 
         return [
             'token' => $token,
-            'user' => new UserResource( $user ),
+            'user' => new UserResource($user),
         ];
-        
     }
 
 
-    
+
 
     /**
      * Toggle user is_preference flag
      */
-    public function toggle(Request $request) {
+    public function toggle(Request $request)
+    {
         $user = $request->user();
-        
+
         $user->update([
             'is_preference' => !$user->is_preference
         ]);
 
-        return new UserResource( $user->fresh() );
-        
+        return new UserResource($user->fresh());
     }
 }

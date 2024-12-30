@@ -5,7 +5,7 @@ import Select from "react-select";
 
 const Settings = () => {
   const dispatch = useDispatch();
-  const { preferences, loading, sources, categories, authors } = useSelector((state) => state.preferences);
+  const { preferences, loading, sources, categories, authors, error } = useSelector((state) => state.preferences);
   const [selectedPreferences, setSelectedPreferences] = useState({
     sources: [],
     categories: [],
@@ -21,7 +21,6 @@ const Settings = () => {
   useEffect(() => {
 
     setSelectedPreferences( s => {
-
       return {
         sources: preferences.sources.map((source) => ({
             value: source.id,
@@ -32,7 +31,7 @@ const Settings = () => {
             label: categories.find((c) => c.value == category.id)?.label || "",
           })),
           authors: preferences.authors.map((author) => ({
-            value: authors.id,
+            value: author.id,
             label: authors.find((a) => a.value == author.id)?.label || "",
           })),
       }
@@ -58,7 +57,7 @@ const Settings = () => {
       <div className="max-w-4xl mx-auto bg-white shadow-md rounded-lg p-6">
         <h1 className="text-2xl font-bold text-gray-800 mb-4">Settings</h1>
 
-        {/* Sources */}
+        {error && <p className="text-red-500">{error}</p>}
         <div className="mb-6">
           <h2 className="text-left text-lg font-semibold text-gray-700 mb-2">Sources</h2>
           <Select
@@ -72,7 +71,6 @@ const Settings = () => {
           />
         </div>
 
-        {/* Categories */}
         <div className="mb-6">
           <h2 className="text-left text-lg font-semibold text-gray-700 mb-2">Categories</h2>
           <Select
@@ -86,7 +84,6 @@ const Settings = () => {
           />
         </div>
 
-        {/* Authors */}
         <div className="mb-6">
           <h2 className="text-left text-lg font-semibold text-gray-700 mb-2">Authors</h2>
           <Select
@@ -100,7 +97,7 @@ const Settings = () => {
           />
         </div>
 
-        {/* Save Button */}
+
         <button
           onClick={handleSubmit}
           disabled={loading}

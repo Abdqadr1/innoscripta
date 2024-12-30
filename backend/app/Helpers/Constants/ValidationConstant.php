@@ -15,7 +15,7 @@ class ValidationConstant{
     const PASSWORD = 'required|string|min:8|confirmed';
 
     const VAR_CHAR = 'required|string|max:250';
-    const ARRAY = 'array';
+    const ARRAY = 'sometimes|array';
 
     public static function EXISTS_IN($table, $column = 'id'){
         return "sometimes|int|exists:{$table},{$column}";

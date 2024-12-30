@@ -24,11 +24,11 @@ export const updatePreferences = createAsyncThunk(
   async (preferences, thunkAPI) => {
     const { auth } = thunkAPI.getState();
     try {
-        preferences.authors = preferences.authors.map( auth => auth.value );
-        preferences.categories = preferences.categories.map( auth => auth.value );
-        preferences.sources = preferences.sources.map( auth => auth.value );
-
-      const { data } = await axios.post(`${API_URL}/user/preferences`, preferences, {
+        const { data } = await axios.post(`${API_URL}/user/preferences`, {
+         authors: preferences.authors.map( auth => auth.value ),
+         categories: preferences.categories.map( auth => auth.value ),
+         sources: preferences.sources.map( auth => auth.value )
+      }, {
         headers: { Authorization: `Bearer ${auth.token}` },
       });
       return data;
@@ -83,11 +83,7 @@ const preferencesSlice = createSlice({
       })
       .addCase(fetchPreferences.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload.data.message;
-
-        if(action.payload.status == 401 ){
-          logout();
-        }
+        state.error = action.payload;
 
       })
       .addCase(updatePreferences.pending, (state) => {
@@ -96,15 +92,11 @@ const preferencesSlice = createSlice({
       })
       .addCase(updatePreferences.fulfilled, (state, action) => {
         state.loading = false;
-        // state.preferences = action.payload;
+        state.preferences = action.payload;
       })
       .addCase(updatePreferences.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload.data.message;
-
-        if(action.payload.status == 401 ){
-          logout();
-        }
+        state.error = action.payload;
       });
   },
 });

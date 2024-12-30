@@ -12,9 +12,9 @@ trait HasPreference {
         $categories = $user->categories()->pluck('id');
 
 
-        $query->whereIn('author_id', $authors)
-                ->whereIn('source_id', $sources)
-                ->whereHas('categories', function($hasQuery) use($categories){
+        $query->orWhereIn('author_id', $authors)
+                ->orWhereIn('source_id', $sources)
+                ->orWhereHas('categories', function($hasQuery) use($categories){
                     $hasQuery->whereIn('categories.id', $categories);
                 });
 

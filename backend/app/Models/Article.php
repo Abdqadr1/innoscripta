@@ -3,11 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Article extends Model
 {
+
+    protected $with = ['author'];
     protected $fillable = ['title', 'content', 'description', 'published_at', 'image_url', 'url', 'author_id', 'source_id'];
 
     protected $casts = [
@@ -15,14 +17,14 @@ class Article extends Model
     ];
 
 
-    public function author():HasOne {
-        return $this->hasOne(Author::class, 'author_id')->withDefault([
-            'name' => ''
+    public function author():BelongsTo {
+        return $this->belongsTo(Author::class, 'author_id')->withDefault([
+            'name' => 'Unknown Author'
         ]);
     }
 
-    public function source():HasOne {
-        return $this->hasOne(NewsSource::class, 'source_id');
+    public function source():BelongsTo {
+        return $this->belongsTo(NewsSource::class, 'source_id');
     }
 
     public function categories() : BelongsToMany {
